@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Happy Birthday Ikaaa!</title>
+<meta name="description" content="Kado ulang tahun interaktif untuk Ikaaa — petualangan, galeri, tiup lilin, quiz, dan surat dari Daimmm.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FFF6DC;--sage:#516950;--dark:#113B0F;--orange:#E84C06;--mustard:#E6AA29;--purple:#A16FCF;--beige:#CAB597;--sky:#A8D8EA;--pink:#FFD6E8;--pink-dark:#F27FA8;--white:#FFFDF6;--ink:#22301F;--radius:28px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:"Quicksand","Trebuchet MS","Segoe UI",system-ui,sans-serif;background:var(--sage);color:var(--ink);display:flex;justify-content:center;min-height:100vh}
+#app{width:100%;max-width:480px;height:100vh;height:100dvh;background:var(--cream);position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.35);display:flex;flex-direction:column}
+#app::before{content:"✦  ✧  ✦  ✧  ✦  ✧  ✦";position:absolute;top:8px;left:0;right:0;text-align:center;color:var(--mustard);font-size:14px;letter-spacing:18px;opacity:.7;pointer-events:none;z-index:0}
+.screen{display:none;flex:1;flex-direction:column;padding:28px 22px 24px;position:relative;z-index:1;animation:pop .45s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.active{display:flex}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes wiggle{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes pulseArrow{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(10px);opacity:.6}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes flick{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.15) rotate(2deg)}}
+.pill{display:inline-block;background:var(--white);border:3px solid var(--dark);border-radius:999px;padding:6px 16px;font-weight:900;letter-spacing:2px;font-size:12px;color:var(--dark);text-transform:uppercase}
+h1{font-family:"Baloo 2","Quicksand",sans-serif;font-size:42px;line-height:.95;font-weight:800;color:var(--dark);text-transform:uppercase;letter-spacing:-.5px;margin:14px 0 10px}
+h1 .hl{color:var(--orange)}
+h2{font-family:"Baloo 2","Quicksand",sans-serif;font-size:28px;font-weight:800;color:var(--dark);text-transform:uppercase;line-height:1.05}
+p.lead{font-size:17px;line-height:1.55;color:#3d4a38}
+.center{text-align:center}
+.btn{display:inline-block;border:3px solid var(--dark);border-radius:999px;background:var(--sage);color:#fff;font-weight:900;font-size:18px;padding:15px 34px;cursor:pointer;font-family:inherit;box-shadow:0 5px 0 var(--dark);transition:transform .12s,box-shadow .12s;text-decoration:none}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--dark)}
+.btn.orange{background:var(--orange)}
+.btn.mustard{background:var(--mustard);color:var(--dark)}
+.btn.ghost{background:var(--white);color:var(--dark);font-size:15px;padding:11px 22px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.logo{font-family:"Caveat",cursive;font-weight:700;font-size:32px;line-height:1;color:var(--dark);letter-spacing:0}
+.logo span{color:var(--orange)}
+.icon-btn{width:46px;height:46px;border-radius:50%;border:3px solid var(--dark);background:var(--white);font-size:20px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 var(--dark)}
+.stars{font-size:15px;font-weight:900;background:var(--white);border:3px solid var(--dark);border-radius:999px;padding:6px 12px}
+.hero-char{width:230px;height:300px;object-fit:cover;object-position:top;border-radius:40px 40px 130px 130px;border:4px solid var(--dark);background:#F5E9C8;animation:floaty 3s ease-in-out infinite;margin:10px auto;display:block}
+.card{background:var(--white);border:3px solid var(--dark);border-radius:var(--radius);padding:18px;box-shadow:0 6px 0 rgba(17,59,15,.18);margin-top:16px}
+.gate-box{margin-top:26px}
+.gate-box input{width:100%;font-size:24px;font-weight:900;text-align:center;letter-spacing:4px;padding:16px;border:3px solid var(--dark);border-radius:20px;background:var(--white);font-family:inherit;color:var(--dark);outline:none}
+.gate-box input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(232,76,6,.2)}
+.err{color:#B3261E;font-weight:700;margin-top:10px;min-height:22px}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="confetti"></div>
+<style>
+.map-wrap{margin-top:14px}
+.map-scene{position:relative;height:300px;border:3px solid var(--dark);border-radius:var(--radius);overflow:hidden;background:linear-gradient(#BFE6F2 0%,#DFF3C9 55%,#FFE9A8 100%)}
+.map-scene .sun{position:absolute;top:16px;right:18px;font-size:44px;animation:floaty 4s ease-in-out infinite}
+.map-scene .cloud{position:absolute;font-size:34px;opacity:.9;animation:floaty 5s ease-in-out infinite}
+.map-scene .hill{position:absolute;bottom:0;width:130%;height:90px;border-radius:50% 50% 0 0;left:-15%}
+.map-scene .hill.h1{background:#8FBF7A;bottom:-18px}
+.map-scene .hill.h2{background:#6FA85E;bottom:-34px;opacity:.85}
+.map-scene .ground{position:absolute;bottom:0;left:0;right:0;height:44px;background:#E9C98A;border-top:3px solid var(--dark)}
+#charOnMap{position:absolute;bottom:34px;left:6%;width:86px;height:118px;z-index:3;transition:left .6s cubic-bezier(.34,1.56,.64,1)}
+#charOnMap img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:24px 24px 40px 40px;border:3px solid var(--dark);background:#F5E9C8;animation:bob .7s ease-in-out infinite}
+#charOnMap .name-tag{position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:var(--white);border:2.5px solid var(--dark);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:900;white-space:nowrap}
+.checkpoint{position:absolute;bottom:168px;z-index:4;width:64px;text-align:center;cursor:pointer;background:none;border:none;font-family:inherit}
+.checkpoint .dot{width:56px;height:56px;margin:0 auto;border-radius:50%;border:3px solid var(--dark);background:var(--white);font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 var(--dark)}
+.checkpoint.done .dot{background:var(--mustard)}
+.checkpoint.next .dot{background:var(--orange);color:#fff;animation:wiggle 1s ease-in-out infinite}
+.checkpoint span{display:block;font-size:11px;font-weight:900;margin-top:6px;background:var(--white);border:2px solid var(--dark);border-radius:999px;padding:2px 6px}
+.map-arrow{font-size:30px;color:var(--orange);animation:pulseArrow 1s ease-in-out infinite;display:inline-block}
+.map-nav{display:flex;gap:12px;justify-content:center;margin-top:16px}
+.map-nav .btn{padding:12px 24px;font-size:16px}
+.progress-dots{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.progress-dots i{width:14px;height:14px;border-radius:50%;border:2.5px solid var(--dark);background:var(--white);display:block}
+.progress-dots i.on{background:var(--mustard)}
+.outfit-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+.outfit-card{display:flex;gap:14px;align-items:center;text-align:left;cursor:pointer;background:var(--white);border:3px solid var(--dark);border-radius:24px;padding:12px;font-family:inherit;box-shadow:0 5px 0 rgba(17,59,15,.18);width:100%}
+.outfit-card.selected{border-color:var(--orange);background:#FFF1E6;box-shadow:0 5px 0 var(--orange)}
+.outfit-card img{width:84px;height:112px;object-fit:cover;object-position:top;border-radius:16px;border:2.5px solid var(--dark);background:#F5E9C8}
+.outfit-card b{font-size:18px;color:var(--dark);display:block}
+.outfit-card small{font-size:14px;line-height:1.4;color:#4a5a44;display:block;margin-top:4px}
+.outfit-card .pick{margin-left:auto;font-size:22px}
+.gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.gal-grid figure{border:3px solid var(--dark);border-radius:20px;overflow:hidden;background:#EFE3B8;cursor:pointer;box-shadow:0 4px 0 rgba(17,59,15,.18)}
+.gal-grid img{width:100%;height:190px;object-fit:cover;display:block;background:#EFE3B8}
+.gal-grid figcaption{padding:9px 10px;font-size:13px;font-weight:700;line-height:1.35}
+.lightbox{position:fixed;inset:0;background:rgba(17,59,15,.88);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.lightbox.open{display:flex}
+.lightbox .lb-inner{background:var(--cream);border:3px solid var(--dark);border-radius:24px;padding:14px;max-width:440px;width:100%;text-align:center}
+.lightbox img{width:100%;max-height:62vh;object-fit:contain;border-radius:16px;background:#fff}
+.lightbox p{font-weight:800;margin:12px 0}
+.cake-stage{text-align:center;margin-top:10px}
+.cake{font-size:110px;line-height:1;margin:6px 0}
+.candles{display:flex;gap:26px;justify-content:center;margin-bottom:-18px;position:relative;z-index:2}
+.candle{width:16px;height:64px;background:repeating-linear-gradient(45deg,#fff 0 8px,var(--pink-dark) 8px 16px);border:2.5px solid var(--dark);border-radius:6px;position:relative}
+.flame{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:26px;animation:flick .35s ease-in-out infinite;transition:opacity .3s,transform .3s}
+.flame.out{opacity:0;transform:translateX(-50%) scale(.2)}
+.smoke{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-size:20px;opacity:0}
+.smoke.show{opacity:.8;animation:floaty 1.2s ease-out}
+.hold-btn{width:100%;padding:18px;border-radius:999px;border:3px solid var(--dark);background:var(--orange);color:#fff;font-weight:900;font-size:18px;font-family:inherit;box-shadow:0 5px 0 var(--dark);cursor:pointer;user-select:none;touch-action:none;position:relative;overflow:hidden}
+.hold-btn .fill{position:absolute;inset:0;background:var(--mustard);width:0%}
+.hold-btn span{position:relative;z-index:1}
+.hold-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--dark)}
+.progress-bar{height:16px;border:3px solid var(--dark);border-radius:999px;background:var(--white);overflow:hidden;margin-top:12px}
+.progress-bar i{display:block;height:100%;width:0%;background:var(--mustard);transition:width .1s linear}
+.opt{display:block;width:100%;text-align:left;margin-top:12px;padding:16px 18px;border:3px solid var(--dark);border-radius:20px;background:var(--white);font-size:17px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 0 rgba(17,59,15,.18)}
+.opt:active{transform:translateY(2px);box-shadow:none}
+.opt.correct{background:#D9F2C2;border-color:var(--sage)}
+.opt.wrong{background:#FFD9D0;border-color:#B3261E}
+.opt:disabled{cursor:default}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.explain{background:#FFF1E6;border:3px dashed var(--orange);border-radius:18px;padding:14px;margin-top:14px;font-weight:700;line-height:1.5;display:none}
+.explain.show{display:block}
+.letter-paper{background:var(--white);border:3px solid var(--dark);border-radius:24px;padding:22px 20px;margin-top:14px;box-shadow:0 6px 0 rgba(17,59,15,.18);font-size:17px;line-height:1.75;white-space:pre-line}
+.letter-paper .from{text-align:right;font-weight:900;margin-top:14px}
+.big-emoji{font-size:72px;animation:floaty 2.5s ease-in-out infinite}
+.bottom-nav{position:static;margin-top:auto;z-index:5;display:flex;gap:10px;justify-content:center;padding:18px 0 4px;background:none;width:100%}
+.bottom-nav .btn{flex:1;text-align:center;padding:13px 10px;font-size:16px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+#confetti i{position:absolute;top:-20px;width:12px;height:18px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.muted{font-size:13px;color:#6b7a64;margin-top:14px;line-height:1.5}
+@media (min-width:520px){h1{font-size:48px}}
+@media (min-width:700px){
+  #app{max-width:860px}
+  .gal-grid{grid-template-columns:repeat(3,1fr)}
+  #mapScene{height:480px}
+  .outfit-grid{grid-template-columns:1fr 1fr}
+  h1{font-size:54px}
+}
+@media (min-width:1100px){
+  #app{max-width:1080px}
+  .gal-grid{grid-template-columns:repeat(4,1fr)}
+  #mapScene{height:560px}
+  .bottom-nav{max-width:680px;margin-left:auto;margin-right:auto}
+}
+</style>
+
+<section class="screen active" id="screen-gate">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars">🎂 27</div></div>
+  <div class="center" style="margin-top:18px">
+    <span class="pill">Kado Spesial • Buat Ikaaa</span>
+    <h1>Halo,<br><span class="hl">Ikaaa!</span></h1>
+    <p class="lead">Ada sesuatu buat kamu. Tapi sebelum dibuka, buktiin dulu kalau ini beneran kamu…</p>
+  </div>
+  <div class="card gate-box">
+    <label for="birthInput" style="font-weight:900;display:block;margin-bottom:10px;text-align:center">Masukin tanggal lahirmu dulu ya</label>
+    <input id="birthInput" inputmode="numeric" placeholder="08-11-1999" autocomplete="off" maxlength="10">
+    <p class="err" id="gateErr"></p>
+    <button class="btn orange" style="width:100%" id="gateBtn">Buka Kadonya 🎁</button>
+    <p class="muted center">Format: DD-MM-YYYY. Tenang, ini cuma gerbang iseng — bukan pengaman beneran.</p>
+  </div>
+</section>
+
+<section class="screen" id="screen-opening">
+  <div class="topbar"><div class="logo">Welcome to</div><button class="icon-btn" id="musicBtn" title="Musik">🔇</button></div>
+  <div class="center">
+    <img class="hero-char" id="heroChar" src="images/character/outfit-pink.jpg" alt="Karakter Ikaa">
+    <h1>Happy Birthday <span class="hl">Ikaaa!</span></h1>
+    <p class="lead" style="font-size:20px;font-weight:800">Yuk ikut petualang dulu!</p>
+    <p class="lead" style="margin-top:8px">27 tahun • 8 November • buat Ikaaa, dari Daimmm</p>
+    <div style="margin-top:22px"><button class="btn mustard" id="startBtn" style="font-size:22px;padding:18px 48px">Mulai ▶</button></div>
+    <p class="muted">Ketuk Mulai buat nyalain musik piano Happy Birthday 🎹</p>
+  </div>
+</section>
+
+<section class="screen" id="screen-map">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars" id="starCount">⭐ 0 / 5</div></div>
+  <h2>Peta Petualangan Ikaaa</h2>
+  <p class="lead" style="margin-top:6px">Kamu harus berkeliling rumah pakai joystick di bawah atau kontrol di laptop. Deketin stasiun berdenyut oranye trus klik buka.</p>
+  <div class="map-wrap">
+    <div class="map-scene" id="mapScene">
+    </div>
+  </div>
+  <div class="progress-dots" id="progressDots"></div>
+  <div class="map-nav">
+    <button class="btn ghost" id="prevCp">◀ Mundur</button>
+    <button class="btn" id="nextCp">Lanjut ▶</button>
+  </div>
+  <p class="muted center" id="mapHint">Checkpoint berikutnya: Pilih Outfit 👗</p>
+  <div class="bottom-nav"><button class="btn ghost" id="mapBack">◀ Kembali</button><button class="btn orange" id="mapGo">Buka Checkpoint ▶</button></div>
+</section>
+
+<section class="screen" id="screen-outfit">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars">👗 Checkpoint 1</div></div>
+  <h2>Pilih Outfit</h2>
+  <p class="lead" style="margin-top:6px">Hari ini Ikaaa mau pakai yang mana?</p>
+  <div class="outfit-grid" id="outfitGrid"></div>
+  <div class="bottom-nav"><button class="btn ghost" id="outfitBack">◀ Peta</button><button class="btn orange" id="outfitDone">Pakai Ini! ▶</button></div>
+</section>
+
+<section class="screen" id="screen-gallery">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars">📸 Checkpoint 2</div></div>
+  <h2>Galeri Kita</h2>
+  <p class="lead" style="margin-top:6px">12 momen kita. Klik fotonya buat lihat ceritanya.</p>
+  <div class="gal-grid" id="galGrid"></div>
+  <div class="bottom-nav"><button class="btn ghost" id="galBack">◀ Peta</button><button class="btn orange" id="galDone">Udah Lihat Semua ▶</button></div>
+</section>
+
+<section class="screen" id="screen-cake">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars">🎂 Checkpoint 3</div></div>
+  <h2>Tiup Lilinnya!</h2>
+  <p class="lead" style="margin-top:6px">Ikaaa udah 27 tahun! Buat permohonan dulu dalam hati… terus tekan dan tahan tombolnya sampai lilinnya padam.</p>
+  <div class="card cake-stage">
+    <div class="candles" id="candles"></div>
+    <div class="cake">🎂</div>
+    <div style="font-size:44px;font-weight:900;color:var(--orange)">27</div>
+    <p class="lead" id="cakeStatus" style="margin-top:6px">Lilinnya masih nyala…</p>
+    <div class="progress-bar"><i id="blowFill"></i></div>
+    <div style="margin-top:16px"><button class="hold-btn" id="blowBtn"><span class="fill" id="blowBtnFill"></span><span>🎂 Tekan &amp; Tahan buat Tiup</span></button></div>
+  </div>
+  <div class="bottom-nav"><button class="btn ghost" id="cakeBack">◀ Peta</button><button class="btn orange" id="cakeDone" disabled>Lanjut ke Quiz ▶</button></div>
+</section>
+
+<section class="screen" id="screen-quiz">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars" id="quizScore">🧩 0 / 5</div></div>
+  <h2>Quick Quiz</h2>
+  <p class="lead" style="margin-top:6px">Seberapa Daimmm kenal Ikaaa? 5 soal receh tentang kita berdua.</p>
+  <div class="card">
+    <div class="quiz-meta"><span class="pill" id="quizNum">Soal 1 / 5</span><span id="quizStars">⭐</span></div>
+    <h2 style="font-size:22px;text-transform:none;margin-top:12px" id="quizQ"></h2>
+    <div id="quizOpts"></div>
+    <div class="explain" id="quizExplain"></div>
+    <div style="margin-top:16px;text-align:right"><button class="btn" id="quizNext" disabled>Lanjut ▶</button></div>
+  </div>
+  <div class="bottom-nav"><button class="btn ghost" id="quizBack">◀ Peta</button></div>
+</section>
+
+<section class="screen" id="screen-letter">
+  <div class="topbar"><div class="logo">Welcome to</div><div class="stars">💌 Finale</div></div>
+  <h2>Surat buat Ikaaa</h2>
+  <div class="letter-paper"><div id="letterText"></div><div class="from" id="letterFrom"></div></div>
+  <div style="text-align:center;margin-top:18px"><button class="btn orange" id="letterDone">💖 Selesai Baca</button></div>
+  <div class="bottom-nav"><button class="btn ghost" id="letterBack">◀ Peta</button></div>
+</section>
+
+<section class="screen" id="screen-finale">
+  <div class="center" style="margin-top:20px">
+    <div class="big-emoji">🎉</div>
+    <h1>Selamat<br>Ulang Tahun,<br><span class="hl">Ikaaa!</span></h1>
+    <p class="lead">Makasih udah main sampai akhir. Sekali lagi, selamat 27 tahun, canciikuuu!</p>
+    <div class="card"><div style="font-size:18px;font-weight:900" id="finalScore"></div><div class="muted" id="finalMsg"></div></div>
+    <div style="margin-top:18px"><button class="btn mustard" id="replayBtn">🔄 Main Lagi</button></div>
+    <p class="muted">Dibuat dengan 💖 oleh Daimmm • 8 November 2026</p>
+  </div>
+</section>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner">
+    <img id="lbImg" src="" alt="Foto galeri">
+    <p id="lbCap"></p>
+    <button class="btn" id="lbClose">Tutup ✕</button>
+  </div>
+</div>
+<script src="content.js"></script>
+<script>
+const C = window.IKAAA_CONTENT;
+const $ = s => document.querySelector(s);
+const state = { outfit: 'pink', cp: 0, done: new Set(), quizIdx: 0, score: 0, blow: 0, blowing: false, musicOn: false, musicTimers: [], quizAnswered: {} };
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function confetti(n){
+  const box = $('#confetti'); const colors = ['#E84C06','#E6AA29','#516950','#A16FCF','#5BA8C9','#F27FA8'];
+  for(let i=0;i<(n||60);i++){
+    const el = document.createElement('i');
+    el.style.left = Math.random()*100+'vw';
+    el.style.background = colors[i%colors.length];
+    el.style.animationDuration = (2+Math.random()*2)+'s';
+    el.style.animationDelay = (Math.random()*.6)+'s';
+    box.appendChild(el);
+    setTimeout(()=>el.remove(), 5200);
+  }
+}
+/* ---------- Musik: Happy Birthday, piano-ish via WebAudio ---------- */
+let audioCtx = null;
+function midi(m){ return 440*Math.pow(2,(m-69)/12); }
+const MELODY = [
+  [67,.4],[67,.4],[69,.75],[67,.75],[72,.75],[71,1.1],
+  [67,.4],[67,.4],[69,.75],[67,.75],[74,.75],[72,1.1],
+  [67,.4],[67,.4],[79,.75],[76,.75],[72,.75],[71,.75],[69,1.1],
+  [77,.4],[77,.4],[76,.75],[72,.75],[74,.75],[72,1.4]
+];
+function playHappyBirthday(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+    state.musicTimers.forEach(clearTimeout); state.musicTimers=[];
+    let t = audioCtx.currentTime + .1;
+    MELODY.forEach(([m,d])=>{
+      const delay = (t - audioCtx.currentTime)*1000;
+      state.musicTimers.push(setTimeout(()=>{
+        const o = audioCtx.createOscillator(), o2 = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type='triangle'; o2.type='sine'; o.frequency.value=midi(m); o2.frequency.value=midi(m)*2;
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(.22, audioCtx.currentTime+.04);
+        g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime+d*.95);
+        const g2 = audioCtx.createGain(); g2.gain.value=.25;
+        o.connect(g); o2.connect(g2); g2.connect(g); g.connect(audioCtx.destination);
+        o.start(); o2.start(); o.stop(audioCtx.currentTime+d); o2.stop(audioCtx.currentTime+d);
+      }, delay));
+      t += d*.48;
+    });
+    /* putar lagi dari awal supaya musiknya jalan terus selama main */
+    const totalMs = (t - audioCtx.currentTime)*1000 + 900;
+    state.musicTimers.push(setTimeout(()=>{ if(state.musicOn) playHappyBirthday(); }, totalMs));
+    state.musicOn = true; $('#musicBtn').textContent = '🔊';
+  }catch(e){ /* audio tidak tersedia, lanjut tanpa musik */ }
+}
+function toggleMusic(){
+  if(state.musicOn){ state.musicTimers.forEach(clearTimeout); state.musicOn=false; $('#musicBtn').textContent='🔇'; }
+  else playHappyBirthday();
+}
+$('#musicBtn').addEventListener('click', toggleMusic);
+
+/* ---------- Gerbang ---------- */
+function checkGate(){
+  const v = $('#birthInput').value.replace(/\D/g,'');
+  if(v === '08111999'){
+    $('#gateErr').textContent = '';
+    confetti(50);
+    setTimeout(()=>{ show('screen-opening'); }, 350);
+  } else {
+    $('#gateErr').textContent = C.gate.wrong;
+  }
+}
+$('#gateBtn').addEventListener('click', checkGate);
+$('#birthInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkGate(); });
+
+/* ---------- Opening ---------- */
+$('#startBtn').addEventListener('click', ()=>{
+  playHappyBirthday();
+  show('screen-map');
+  renderMap();
+});
+
+/* ---------- Peta ---------- */
+const CP_LEFT = [10, 29, 48, 67, 86];
+function renderMap(){
+  const scene = $('#mapScene');
+  scene.querySelectorAll('.checkpoint').forEach(el=>el.remove());
+  C.map.checkpoints.forEach((cp,i)=>{
+    const b = document.createElement('button');
+    b.className = 'checkpoint' + (state.done.has(cp.id)?' done':'') + (i===state.cp?' next':'');
+    b.style.left = 'calc('+CP_LEFT[i]+'% - 32px)';
+    b.innerHTML = '<div class="dot">'+cp.icon+'</div><span>'+cp.label+'</span>';
+    b.addEventListener('click', ()=>{ state.cp=i; renderMap(); openCheckpoint(); });
+    scene.appendChild(b);
+  });
+  $('#charOnMap').style.left = 'calc('+CP_LEFT[state.cp]+'% - 40px)';
+  $('#mapCharImg').src = C.outfits.find(o=>o.id===state.outfit).image;
+  $('#heroChar').src = C.outfits.find(o=>o.id===state.outfit).image;
+  $('#starCount').textContent = '⭐ '+state.done.size+' / 5';
+  const dots = $('#progressDots'); dots.innerHTML='';
+  C.map.checkpoints.forEach((cp,i)=>{
+    const d=document.createElement('i'); if(state.done.has(cp.id)) d.className='on'; dots.appendChild(d);
+  });
+  const nextIdx = C.map.checkpoints.findIndex(cp=>!state.done.has(cp.id));
+  $('#mapHint').textContent = nextIdx>=0 ? ('Checkpoint berikutnya: '+C.map.checkpoints[nextIdx].label+' '+C.map.checkpoints[nextIdx].icon) : 'Semua checkpoint selesai! 🎉';
+  $('#mapGo').textContent = nextIdx>=0 ? ('Buka: '+C.map.checkpoints[nextIdx].label+' ▶') : 'Lihat Finale ▶';
+  if(nextIdx<0){ $('#mapGo').onclick = ()=>{ renderLetter(); show('screen-letter'); }; }
+  else { $('#mapGo').onclick = ()=>{ state.cp = nextIdx; openCheckpoint(); }; }
+}
+function moveCp(d){
+  state.cp = Math.max(0, Math.min(C.map.checkpoints.length-1, state.cp+d));
+  renderMap();
+}
+$('#prevCp').addEventListener('click', ()=>moveCp(-1));
+$('#nextCp').addEventListener('click', ()=>moveCp(1));
+$('#mapBack').addEventListener('click', ()=>show('screen-opening'));
+function openCheckpoint(){
+  const id = C.map.checkpoints[state.cp].id;
+  if(id==='outfit') show('screen-outfit');
+  else if(id==='gallery') show('screen-gallery');
+  else if(id==='cake'){ show('screen-cake'); }
+  else if(id==='quiz'){ renderQuiz(); show('screen-quiz'); }
+  else if(id==='letter'){ renderLetter(); show('screen-letter'); }
+}
+function markDone(id){
+  if(!state.done.has(id)){ state.done.add(id); confetti(40); }
+  const nextIdx = C.map.checkpoints.findIndex(cp=>!state.done.has(cp.id));
+  if(nextIdx>=0) state.cp = nextIdx;
+  renderMap();
+}
+/* kontrol peta 2D lama dimatikan — diganti joystick + WASD di house3d.js */
+</script>
+<script>
+/* ---------- Outfit ---------- */
+function renderOutfits(){
+  const grid = $('#outfitGrid'); grid.innerHTML='';
+  C.outfits.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'outfit-card' + (state.outfit===o.id?' selected':'');
+    b.innerHTML = '<img src="'+o.image+'" alt="'+o.name+'"><span><b>'+o.name+'</b><small>'+o.desc+'</small></span><span class="pick">'+(state.outfit===o.id?'✅':'○')+'</span>';
+    b.addEventListener('click', ()=>{ state.outfit=o.id; renderOutfits(); renderMap(); });
+    grid.appendChild(b);
+  });
+}
+renderOutfits();
+$('#outfitDone').addEventListener('click', ()=>{ markDone('outfit'); show('screen-map'); });
+$('#outfitBack').addEventListener('click', ()=>show('screen-map'));
+
+/* ---------- Galeri ---------- */
+function renderGallery(){
+  const grid = $('#galGrid'); grid.innerHTML='';
+  C.gallery.photos.forEach((p,i)=>{
+    const f = document.createElement('figure');
+    f.innerHTML = '<img src="'+p.src+'" alt="Foto '+(i+1)+'" loading="lazy"><figcaption>'+(i+1)+'. '+p.caption+'</figcaption>';
+    f.addEventListener('click', ()=>{
+      $('#lbImg').src = p.src; $('#lbCap').textContent = (i+1)+'. '+p.caption;
+      $('#lightbox').classList.add('open');
+    });
+    grid.appendChild(f);
+  });
+}
+renderGallery();
+$('#lbClose').addEventListener('click', ()=>$('#lightbox').classList.remove('open'));
+$('#lightbox').addEventListener('click', e=>{ if(e.target.id==='lightbox') $('#lightbox').classList.remove('open'); });
+$('#galDone').addEventListener('click', ()=>{ markDone('gallery'); show('screen-map'); });
+$('#galBack').addEventListener('click', ()=>show('screen-map'));
+
+/* ---------- Kue / Tiup lilin ---------- */
+function renderCandles(){
+  const box = $('#candles'); box.innerHTML='';
+  for(let i=0;i<3;i++){
+    const c = document.createElement('div');
+    c.className='candle';
+    c.innerHTML = '<span class="flame">🔥</span><span class="smoke">💨</span>';
+    box.appendChild(c);
+  }
+}
+renderCandles();
+let blowTimer = null;
+function setBlow(p){
+  state.blow = Math.max(0, Math.min(100, p));
+  $('#blowFill').style.width = state.blow+'%';
+  $('#blowBtnFill').style.width = state.blow+'%';
+  if(state.blow>=100) finishBlow();
+}
+function startBlow(e){
+  if(e) e.preventDefault();
+  if(state.blow>=100) return;
+  $('#cakeStatus').textContent = C.cake.blowing;
+  clearInterval(blowTimer);
+  blowTimer = setInterval(()=>setBlow(state.blow+2.2), 50);
+}
+function stopBlow(){
+  clearInterval(blowTimer);
+  if(state.blow<100) $('#cakeStatus').textContent = 'Lilinnya masih nyala… tahan terus!';
+}
+const blowBtn = $('#blowBtn');
+blowBtn.addEventListener('pointerdown', startBlow);
+['pointerup','pointerleave','pointercancel'].forEach(ev=>blowBtn.addEventListener(ev, stopBlow));
+function finishBlow(){
+  clearInterval(blowTimer);
+  document.querySelectorAll('.flame').forEach(f=>f.classList.add('out'));
+  document.querySelectorAll('.smoke').forEach(s=>s.classList.add('show'));
+  $('#cakeStatus').textContent = C.cake.doneTitle+' '+C.cake.doneText;
+  $('#cakeDone').disabled = false;
+  confetti(80);
+  markDone('cake');
+}
+$('#cakeDone').addEventListener('click', ()=>{ show('screen-map'); state.cp=3; renderMap(); openCheckpoint(); });
+$('#cakeBack').addEventListener('click', ()=>show('screen-map'));
+
+/* ---------- Quiz ---------- */
+function renderQuiz(){
+  const q = C.quiz.questions[state.quizIdx];
+  $('#quizNum').textContent = 'Soal '+(state.quizIdx+1)+' / '+C.quiz.questions.length;
+  $('#quizScore').textContent = '🧩 '+state.score+' / '+C.quiz.questions.length;
+  $('#quizQ').textContent = q.q;
+  const box = $('#quizOpts'); box.innerHTML='';
+  const ex = $('#quizExplain'); ex.classList.remove('show'); ex.textContent='';
+  $('#quizNext').disabled = true;
+  $('#quizNext').textContent = state.quizIdx===C.quiz.questions.length-1 ? (state.quizDone ? 'Lanjut ke Surat ▶' : 'Lihat Hasil ▶') : 'Lanjut ▶';
+  q.options.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className='opt'; b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      /* satu soal cuma bisa dijawab sekali — jawaban ulang tidak nambah skor */
+      if(state.quizAnswered[state.quizIdx]!==undefined) return;
+      state.quizAnswered[state.quizIdx]=i;
+      box.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+      const ok = q.correct.includes(i);
+      if(ok){ b.classList.add('correct'); state.score++; }
+      else {
+        b.classList.add('wrong');
+        q.correct.forEach(ci=>box.children[ci].classList.add('correct'));
+      }
+      $('#quizScore').textContent = '🧩 '+state.score+' / '+C.quiz.questions.length;
+      ex.textContent = (ok?'Benar! ':'Belum tepat. ') + q.explain;
+      ex.classList.add('show');
+      $('#quizNext').disabled = false;
+    });
+    box.appendChild(b);
+  });
+  /* kalau soal ini sudah pernah dijawab, tampilkan lagi jawabannya (tanpa bisa dijawab ulang) */
+  const answered = state.quizAnswered[state.quizIdx];
+  if(answered!==undefined){
+    box.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+    const chosen = box.children[answered];
+    const wasOk = q.correct.includes(answered);
+    if(chosen) chosen.classList.add(wasOk?'correct':'wrong');
+    if(!wasOk) q.correct.forEach(ci=>box.children[ci].classList.add('correct'));
+    ex.textContent = (wasOk?'Benar! ':'Belum tepat. ') + q.explain;
+    ex.classList.add('show');
+    $('#quizNext').disabled = false;
+  }
+}
+function quizResultMsg(s){
+  if(s>=5) return 'Sempurna! Daimmm kenal Ikaaa luar dalam. 💖';
+  if(s===4) return 'Hampir sempurna! Cuma 1 yang lolos, dikit lagi!';
+  if(s===3) return 'Bagus banget! Yang penting kita berdua yang tau.';
+  if(s===2) return 'Lumayan! Masih ada yang perlu dihafal lagi nih.';
+  if(s===1) return 'Hihi, baru 1 yang benar — Daimmm harus lebih perhatian lagi!';
+  return 'Waduh, 0 benar... tapi gapapa, yang penting sayang! 😄';
+}
+$('#quizNext').addEventListener('click', ()=>{
+  if(state.quizIdx < C.quiz.questions.length-1){ state.quizIdx++; renderQuiz(); }
+  else if(!state.quizDone){
+    state.quizDone = true;
+    const n = C.quiz.questions.length;
+    $('#quizQ').textContent = 'Hasil Quiz: '+state.score+' / '+n+' benar! 🎉';
+    $('#quizOpts').innerHTML = '';
+    const ex = $('#quizExplain'); ex.textContent = quizResultMsg(state.score); ex.classList.add('show');
+    $('#quizNext').textContent = 'Lanjut ke Surat ▶';
+    if(state.score>=4) confetti(70);
+    /* quiz selesai begitu hasil tampil — bukan cuma saat klik Lanjut */
+    markDone('quiz');
+  }
+  else {
+    state.cp=4; renderMap(); renderLetter(); show('screen-letter');
+  }
+});
+$('#quizBack').addEventListener('click', ()=>show('screen-map'));
+
+/* ---------- Surat & Finale ---------- */
+function renderLetter(){
+  $('#letterText').textContent = C.letter.text;
+  $('#letterFrom').textContent = C.letter.from;
+  /* reset tombol + pesan peringatan tiap kali surat dibuka */
+  const btn = $('#letterDone');
+  btn.textContent = '💖 Selesai Baca';
+  delete btn.dataset.blocked;
+  const w = $('#letterWarn'); if(w) w.remove();
+}
+$('#letterDone').addEventListener('click', ()=>{
+  const btn = $('#letterDone');
+  if(btn.dataset.blocked){ show('screen-map'); return; }
+  /* game tidak boleh selesai sebelum kelima misi kelar */
+  const need = ['outfit','gallery','cake','quiz'].filter(id=>!state.done.has(id));
+  if(need.length){
+    const names = {outfit:'Pilih Outfit', gallery:'Galeri Foto', cake:'Tiup Lilin', quiz:'Quick Quiz'};
+    let warn = $('#letterWarn');
+    if(!warn){
+      warn = document.createElement('p');
+      warn.id = 'letterWarn';
+      warn.className = 'explain show';
+      warn.style.textAlign = 'center';
+      btn.parentElement.after(warn);
+    }
+    warn.textContent = 'Tunggu dulu! Misi yang belum kelar: '+need.map(id=>names[id]).join(', ')+'. Yuk kelarin dulu, baru baca surat sampai habis. 💪';
+    btn.textContent = '◀ Balik ke Peta';
+    btn.dataset.blocked = '1';
+    return;
+  }
+  markDone('letter');
+  $('#finalScore').textContent = C.finale.scoreLabel+': '+state.score+' / '+C.quiz.questions.length+' 🎂';
+  $('#finalMsg').textContent = quizResultMsg(state.score);
+  confetti(90);
+  show('screen-finale');
+});
+$('#letterBack').addEventListener('click', ()=>show('screen-map'));
+$('#replayBtn').addEventListener('click', ()=>{
+  state.done.clear(); state.quizIdx=0; state.score=0; state.blow=0; state.cp=0; state.quizDone=false; state.quizAnswered={};
+  renderCandles(); setBlow(0);
+  $('#cakeDone').disabled = true;
+  $('#cakeStatus').textContent = 'Lilinnya masih nyala…';
+  document.querySelectorAll('.flame').forEach(f=>f.classList.remove('out'));
+  renderMap(); show('screen-opening');
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="house3d.js"></script>
+</body>
+</html>

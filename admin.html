@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Website Ikaaa</title>
+<style>
+:root{--cream:#FFF6DC;--sage:#516950;--dark:#113B0F;--orange:#E84C06;--mustard:#E6AA29}
+*{box-sizing:border-box} body{font-family:system-ui,sans-serif;background:var(--cream);color:var(--dark);margin:0;padding:20px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:28px} h2{margin-top:28px;border-bottom:3px solid var(--dark);padding-bottom:6px}
+label{display:block;font-weight:700;margin:12px 0 4px}
+input,textarea,select{width:100%;padding:10px;border:2px solid var(--dark);border-radius:12px;font:inherit;background:#fff}
+textarea{min-height:90px}
+button{border:3px solid var(--dark);border-radius:999px;background:var(--sage);color:#fff;font-weight:800;padding:12px 24px;cursor:pointer;font:inherit;margin-top:18px}
+button.orange{background:var(--orange)} button.mustard{background:var(--mustard);color:var(--dark)}
+.card{background:#fff;border:3px solid var(--dark);border-radius:20px;padding:16px;margin-top:12px}
+small{color:#5a6a54} .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🛠️ Admin — Website Ikaaa</h1>
+<p>Edit isi website di sini, lalu klik <b>Download content.js</b> dan ganti file <code>content.js</code> di repo GitHub dengan file yang di-download. Foto diganti dengan menukar file di folder <code>images/gallery/</code> (nama file tetap 1.jpg–12.jpg).</p>
+<p><a href="index.html">← Lihat website</a></p>
+
+<h2>Opening</h2>
+<label>Judul</label><input id="f-open-title">
+<label>Subjudul</label><input id="f-open-sub">
+
+<h2>Galeri — caption 12 foto</h2>
+<div id="galInputs"></div>
+
+<h2>Quiz — 5 soal</h2>
+<div id="quizInputs"></div>
+
+<h2>Surat</h2>
+<label>Isi surat (verbatim dari Im)</label>
+<textarea id="f-letter" rows="10"></textarea>
+<label>Penanda tangan</label><input id="f-letter-from">
+
+<h2>Fakta seru (muncul di quiz)</h2>
+<label>Satu fakta per baris</label>
+<textarea id="f-facts" rows="5"></textarea>
+
+<button class="orange" id="dlBtn">⬇️ Download content.js baru</button>
+<button class="mustard" id="resetBtn">Reset ke isi awal</button>
+<p><small>Admin ini tidak menyimpan ke server — semua perubahan hanya ada di browser ini sampai kamu download dan push file-nya ke GitHub.</small></p>
+</div>
+<script src="content.js"></script>
+<script>
+const C = window.IKAAA_CONTENT;
+const orig = JSON.parse(JSON.stringify(C));
+function build(){
+  document.getElementById('f-open-title').value = C.opening.title;
+  document.getElementById('f-open-sub').value = C.opening.subtitle;
+  document.getElementById('f-letter').value = C.letter.text;
+  document.getElementById('f-letter-from').value = C.letter.from;
+  document.getElementById('f-facts').value = C.quiz.facts.join('\n');
+  const g = document.getElementById('galInputs'); g.innerHTML='';
+  C.gallery.photos.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML='<label>Foto '+(i+1)+' — '+p.src+'</label><input data-gal="'+i+'" value="">';
+    d.querySelector('input').value=p.caption; g.appendChild(d);
+  });
+  const q = document.getElementById('quizInputs'); q.innerHTML='';
+  C.quiz.questions.forEach((qq,qi)=>{
+    const d=document.createElement('div'); d.className='card';
+    let h='<label>Soal '+(qi+1)+'</label><input data-q="'+qi+'" value="">';
+    qq.options.forEach((op,oi)=>{
+      const checked = qq.correct.includes(oi)?'checked':'';
+      h+='<label style="font-weight:400"><input type="checkbox" data-qc="'+qi+':'+oi+'" '+checked+' style="width:auto"> Opsi '+(oi+1)+': </label><input data-qo="'+qi+':'+oi+'" value="">';
+    });
+    h+='<label>Penjelasan</label><input data-qe="'+qi+'" value="">';
+    d.innerHTML=h;
+    d.querySelector('[data-q]').value=qq.q;
+    qq.options.forEach((op,oi)=>{ d.querySelector('[data-qo="'+qi+':'+oi+'"]').value=op; });
+    d.querySelector('[data-qe]').value=qq.explain;
+    q.appendChild(d);
+  });
+}
+build();
+document.getElementById('resetBtn').addEventListener('click', ()=>{ location.reload(); });
+document.getElementById('dlBtn').addEventListener('click', ()=>{
+  C.opening.title=document.getElementById('f-open-title').value;
+  C.opening.subtitle=document.getElementById('f-open-sub').value;
+  C.letter.text=document.getElementById('f-letter').value;
+  C.letter.from=document.getElementById('f-letter-from').value;
+  C.quiz.facts=document.getElementById('f-facts').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  document.querySelectorAll('[data-gal]').forEach(el=>{ C.gallery.photos[+el.dataset.gal].caption=el.value; });
+  document.querySelectorAll('[data-q]').forEach(el=>{ C.quiz.questions[+el.dataset.q].q=el.value; });
+  document.querySelectorAll('[data-qo]').forEach(el=>{ const [qi,oi]=el.dataset.qo.split(':').map(Number); C.quiz.questions[qi].options[oi]=el.value; });
+  document.querySelectorAll('[data-qe]').forEach(el=>{ C.quiz.questions[+el.dataset.qe].explain=el.value; });
+  C.quiz.questions.forEach((qq,qi)=>{
+    qq.correct=[];
+    qq.options.forEach((_,oi)=>{
+      const cb=document.querySelector('[data-qc="'+qi+':'+oi+'"]');
+      if(cb && cb.checked) qq.correct.push(oi);
+    });
+  });
+  const out='// ============================================================\n//  content.js — SATU-SATUNYA sumber isi website Ikaaa\n//  Diedit lewat admin.html pada '+new Date().toISOString().slice(0,10)+'.\n// ============================================================\nwindow.IKAAA_CONTENT = '+JSON.stringify(C,null,2)+';\n';
+  const blob=new Blob([out],{type:'text/javascript'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='content.js'; a.click();
+  alert('content.js ter-download. Ganti file content.js di repo GitHub dengan file ini, lalu push.');
+});
+</script>
+</body>
+</html>
